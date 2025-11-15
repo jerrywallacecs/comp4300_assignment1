@@ -107,6 +107,10 @@ int main(int argc, char* argv[])
 		ImGui::Checkbox("draw text", &drawText);
 		ImGui::SliderFloat("radius", &circleRadius, 0.0f, 300.0f);
 		ImGui::SliderInt("sides", &circleSegments, 3, 64);
+
+		ImGui::SliderFloat("x speed", &circleSpeedX, -15.0f, 15.0f);
+		ImGui::SliderFloat("y speed", &circleSpeedY, -15.0f, 15.0f);
+
 		ImGui::ColorEdit3("color circle", c);
 		ImGui::InputText("text", displayString, 255);
 		if (ImGui::Button("set text"))
@@ -123,6 +127,7 @@ int main(int argc, char* argv[])
 		// set the circle properties, because they may have been updated with the ui
 		circle.setPointCount(circleSegments);
 		circle.setRadius(circleRadius);
+		float circleDiameter = circleRadius * 2;
 
 		// imgui uses 0-1 float for colors, sfml uses 0-255 for colors
 		// we must convert from the ui floats to sfml uint8_t
@@ -130,6 +135,21 @@ int main(int argc, char* argv[])
 
 		// basic animation - move the circle each frame if it's still in frame
 		circle.setPosition({ circle.getPosition().x + circleSpeedX, circle.getPosition().y + circleSpeedY });
+
+
+		// COLLISION HANDLING
+		// circle.getPosition() + circleDiameter for bottom and right
+		// circle.getPosition() for top and left
+
+		if (circle.getPosition().x < 0 || circle.getPosition().x + circleDiameter > wWidth)
+		{
+			circleSpeedX *= -1;
+		}
+
+		if (circle.getPosition().y < 0 || circle.getPosition().y + circleDiameter > wHeight)
+		{
+			circleSpeedY *= -1;
+		}
 
 		// basic rendering function calls
 		window.clear(); // clear the window of anything previously drawn
