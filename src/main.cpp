@@ -9,6 +9,38 @@
 
 int main(int argc, char* argv[])
 {
+	// FILE HANDLING
+	/*
+		example file handling function
+
+		void loadFromFile(const std::string& filename)
+		{
+			std::ifstream fin(filename)
+			std::string first, last;
+			int id;
+			float avg;
+
+			while (fin >> first)
+			{
+				fin >> last >> id >> avg;
+			}
+		}
+	*/
+	std::string filename{ "config/config.txt" };
+	std::ifstream fin(filename);
+	std::string temp;
+
+	if (!fin)
+	{
+		std::cerr << "could not open file" << '\n' << "current working dir: " << std::filesystem::current_path() << '\n';
+		return -1;
+	}
+
+	while (fin >> temp)
+	{
+		std::cout << temp << '\n';
+	}
+
 	// create a new window of size w*h pixels
 	// top-left of the window is (0,0) and bottom-right is (w,h)
 	// you will have to read these from the config file

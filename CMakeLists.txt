@@ -37,7 +37,7 @@ add_executable(main src/main.cpp)
 target_compile_features(main PRIVATE cxx_std_17)
 target_link_libraries(main PRIVATE SFML::Graphics ImGui-SFML::ImGui-SFML)
 
-# handling font - does not work?
+# handling font
 set(FONT_SRC "${CMAKE_CURRENT_SOURCE_DIR}/fonts/airstrike.ttf")
 set(FONT_DEST "$<TARGET_FILE_DIR:main>/fonts/airstrike.ttf")
 add_custom_command(
@@ -51,4 +51,15 @@ add_custom_command(
         "${CMAKE_CURRENT_SOURCE_DIR}/fonts/airstrike.ttf"
         "$<TARGET_FILE_DIR:main>/fonts/airstrike.ttf"
     COMMENT "Copying airstrike.ttf to bin/fonts/"
+)
+
+# handling config file
+add_custom_command(
+    TARGET main POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E make_directory
+            "$<TARGET_FILE_DIR:main>/config"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "${CMAKE_SOURCE_DIR}/config.txt"
+            "$<TARGET_FILE_DIR:main>/config/config.txt"
+    COMMENT "Copying config.txt -> $<TARGET_FILE_DIR:main>/config/"
 )
