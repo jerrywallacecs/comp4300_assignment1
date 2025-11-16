@@ -1,5 +1,2 @@
-config file
-config file
-config file
-config file
-config file
+Window 1920 1080
+Font hello there

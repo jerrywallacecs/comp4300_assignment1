@@ -28,7 +28,14 @@ int main(int argc, char* argv[])
 	*/
 	std::string filename{ "config/config.txt" };
 	std::ifstream fin(filename);
+	std::string section;
+
+	// default values to avoid using uninitialized memory + just a good idea
+	uint16_t windowWidth = 1280;
+	uint16_t windowHeight = 720;
+
 	std::string temp;
+	std::string temp2;
 
 	if (!fin)
 	{
@@ -36,19 +43,28 @@ int main(int argc, char* argv[])
 		return -1;
 	}
 
-	while (fin >> temp)
+	while (fin >> section)
 	{
-		std::cout << temp << '\n';
+		if (section == "Window")
+		{
+			fin >> windowWidth >> windowHeight;
+		}
+
+		if (section == "Font")
+		{
+			fin >> temp >> temp2;
+			std::cout << temp << '\n';
+		}
 	}
 
 	// create a new window of size w*h pixels
 	// top-left of the window is (0,0) and bottom-right is (w,h)
 	// you will have to read these from the config file
-	const int wWidth = 1280;
-	const int wHeight = 720;
+	const uint16_t wWidth = windowWidth;
+	const uint16_t wHeight = windowHeight;
 
 	// as of sfml 3, sf::VideoMode now takes in a single object instead of sepeate ints
-	auto window = sf::RenderWindow(sf::VideoMode({ wWidth, wHeight }), "Assignment 1 | SFML + ImGui");
+	auto window = sf::RenderWindow(sf::VideoMode({ windowWidth, windowHeight }), "Assignment 1 | SFML + ImGui");
 	window.setFramerateLimit(60); // limit frame rate to 60fps
 
 	// initialize imgui and create a clock used for its internal timing
@@ -73,9 +89,18 @@ int main(int argc, char* argv[])
 	bool drawCircle = true; // whether or not to draw the circle
 	bool drawText = true; // whether or not to draw the text
 
+	float rectangleWidth = 50;
+	float rectangleHeight = 50;
+	float rectangleSpeedX = 1.0f;
+	float rectangleSpeedY = 0.5f;
+	bool drawRectangle = true;
+
 	// create the sfml circle shape based on our params
 	sf::CircleShape circle(circleRadius, circleSegments);
 	circle.setPosition({ 10.0f, 10.0f });
+
+	sf::RectangleShape rectangle({ rectangleWidth, rectangleHeight });
+	rectangle.setPosition({ 50.0f, 50.0f });
 
 	// load a font so we can display some text
 	sf::Font myFont;
@@ -134,14 +159,24 @@ int main(int argc, char* argv[])
 		ImGui::Text("window text");
 
 		// with intermediate mode (imgui), we just pass in the name and a pointer to the variable it operates on
+		ImGui::Text("Circle Settings");
 		ImGui::Checkbox("draw circle", &drawCircle);
 		ImGui::SameLine();
 		ImGui::Checkbox("draw text", &drawText);
 		ImGui::SliderFloat("radius", &circleRadius, 0.0f, 300.0f);
 		ImGui::SliderInt("sides", &circleSegments, 3, 64);
+		ImGui::SliderFloat("circle x speed", &circleSpeedX, -15.0f, 15.0f);
+		ImGui::SliderFloat("circle y speed", &circleSpeedY, -15.0f, 15.0f);
 
-		ImGui::SliderFloat("x speed", &circleSpeedX, -15.0f, 15.0f);
-		ImGui::SliderFloat("y speed", &circleSpeedY, -15.0f, 15.0f);
+		ImGui::Text("Rectangle Settings");
+		ImGui::Checkbox("draw rectangle", &drawRectangle);
+		ImGui::SliderFloat("rectangle width", &rectangleWidth, 1, 100);
+		ImGui::SliderFloat("rectangle height", &rectangleHeight, 1, 100);
+		ImGui::SliderFloat("rectangle x speed", &rectangleSpeedX, -15.0f, 15.0f);
+		ImGui::SliderFloat("rectangle y speed", &rectangleSpeedY, -15.0f, 15.0f);
+
+
+
 
 		ImGui::ColorEdit3("color circle", c);
 		ImGui::InputText("text", displayString, 255);
@@ -160,6 +195,8 @@ int main(int argc, char* argv[])
 		circle.setPointCount(circleSegments);
 		circle.setRadius(circleRadius);
 		float circleDiameter = circleRadius * 2;
+
+		rectangle.setSize({ rectangleWidth, rectangleHeight });
 
 		// imgui uses 0-1 float for colors, sfml uses 0-255 for colors
 		// we must convert from the ui floats to sfml uint8_t
@@ -189,6 +226,11 @@ int main(int argc, char* argv[])
 		if (drawCircle) // draw the circle if the boolean is true
 		{
 			window.draw(circle);
+		}
+
+		if (drawRectangle)
+		{
+			window.draw(rectangle);
 		}
 
 		if (drawText)
