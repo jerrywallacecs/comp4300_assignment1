@@ -1,2 +1,2 @@
-Window 1920 1080
+Window 1280 720
 Font fonts/airstrike.ttf 50 50 0 50

@@ -1,6 +1,6 @@
 #include <iostream>
 #include <memory>
-#include <fstream> // file stream
+#include <fstream>
 #include <vector>
 
 #include <SFML/Graphics.hpp>
@@ -10,22 +10,6 @@
 int main(int argc, char* argv[])
 {
 	// FILE HANDLING
-	/*
-		example file handling function
-
-		void loadFromFile(const std::string& filename)
-		{
-			std::ifstream fin(filename)
-			std::string first, last;
-			int id;
-			float avg;
-
-			while (fin >> first)
-			{
-				fin >> last >> id >> avg;
-			}
-		}
-	*/
 	std::string filename{ "config/config.txt" };
 	std::ifstream fin(filename);
 	std::string section;
@@ -36,8 +20,16 @@ int main(int argc, char* argv[])
 
 	// font variables
 	std::string fontFile;
-	int fontSize;
-	int fontRed, fontGreen, fontBlue;
+	int fontSize{ 0 };
+	int fontRGB[3] = { 255, 255, 255 };
+
+	std::string shapeName;
+	float initialPosX{};
+	float initialPosY{};
+	float initialSpeedX{};
+	float initialSpeedY{};
+	int shapeRGB[3] = { 255, 255, 255 };
+
 
 	if (!fin)
 	{
@@ -54,11 +46,11 @@ int main(int argc, char* argv[])
 
 		if (section == "Font")
 		{
-			fin >> fontFile >> fontSize >> fontRed >> fontGreen >> fontBlue;
+			fin >> fontFile >> fontSize >> fontRGB[0] >> fontRGB[1] >> fontRGB[2];
 		}
 	}
 
-	sf::Color fontColor(fontRed, fontGreen, fontBlue, 255);
+	sf::Color fontColor(fontRGB[0], fontRGB[1], fontRGB[2], 255);
 
 	// as of sfml 3, sf::VideoMode now takes in a single object instead of sepeate ints
 	auto window = sf::RenderWindow(sf::VideoMode({ windowWidth, windowHeight }), "Assignment 1 | SFML + ImGui");
@@ -106,7 +98,7 @@ int main(int argc, char* argv[])
 	if (!myFont.openFromFile(fontFile))
 	{
 		// if we can't load the font, print an error to the console and exit
-		std::cout << "Could not load font!\n";
+		std::cerr << "Could not load font!\n";
 		std::exit(-1);
 	}
 
