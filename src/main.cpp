@@ -52,14 +52,12 @@ int main(int argc, char* argv[])
 		{
 			if (hasRectangle)
 			{
-				std::cout << "rect" << '\n';
 				rectangle.setPosition({ posx, posy });
 				rectangle.setFillColor(rgb);
 			}
 
 			if (hasCircle)
 			{
-				std::cout << "circle" << '\n';
 				circle.setPosition({ posx, posy });
 				circle.setFillColor(rgb);
 			}
