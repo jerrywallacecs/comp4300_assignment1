@@ -44,8 +44,20 @@ int main(int argc, char* argv[])
 
 		bool hasRectangle = false;
 		bool hasCircle = false;
+
 		bool drawRectangle = true;
 		bool drawCircle = true;
+
+		void init(float posx, float posy, sf::Color rgb)
+		{
+			rectangle.setPosition({ posx, posy });
+			rectangle.setFillColor(rgb);
+		}
+
+		void animate(float speedx, float speedy)
+		{
+			rectangle.setPosition({ rectangle.getPosition().x + speedx, rectangle.getPosition().y + speedy });
+		}
 	};
 
 	// container for all shapes
@@ -77,10 +89,11 @@ int main(int argc, char* argv[])
 
 			sf::RectangleShape rectangle({ info.widthHeight[0], info.widthHeight[1] });
 			info.rectangle = rectangle;
-
 			info.hasRectangle = true;
 
 			info.rgbColor = sf::Color(static_cast<uint8_t>(info.rgb[0]), static_cast<uint8_t>(info.rgb[1]), static_cast<uint8_t>(info.rgb[2]));
+
+			info.init(info.initialPosX, info.initialPosY, info.rgbColor);
 
 			shapes.push_back(info);
 		}
@@ -117,13 +130,6 @@ int main(int argc, char* argv[])
 	// create the sfml circle shape based on our params
 	sf::CircleShape circle(circleRadius, circleSegments);
 	circle.setPosition({ 10.0f, 10.0f });
-
-	// we should probably switch to class implementation, as a constructor would be useful
-	for (int i = 0; i < shapes.size(); ++i)
-	{
-		shapes[i].rectangle.setPosition({ shapes[i].initialPosX, shapes[i].initialPosY });
-		shapes[i].rectangle.setFillColor(shapes[i].rgbColor);
-	}
 
 	// load a font so we can display some text
 	sf::Font myFont;
@@ -221,6 +227,11 @@ int main(int argc, char* argv[])
 		// basic animation - move the circle each frame if it's still in frame
 		circle.setPosition({ circle.getPosition().x + circleSpeedX, circle.getPosition().y + circleSpeedY });
 
+		for (int i = 0; i < shapes.size(); ++i)
+		{
+			shapes[i].animate(shapes[i].initialSpeedX, shapes[i].initialSpeedY);
+		}
+
 
 		// COLLISION HANDLING
 		// circle.getPosition() + circleDiameter for bottom and right
@@ -236,7 +247,7 @@ int main(int argc, char* argv[])
 			circleSpeedY *= -1;
 		}
 
-		// basic rendering function calls
+		// RENDERING
 		window.clear(); // clear the window of anything previously drawn
 
 		if (drawCircle) // draw the circle if the boolean is true

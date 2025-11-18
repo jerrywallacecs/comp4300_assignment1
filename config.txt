@@ -1,4 +1,4 @@
 Window 1280 720
 Font fonts/airstrike.ttf 50 50 0 50
-Rectangle r1 500 500 1.0 0.5 255 255 255 100 100
-Rectangle r2 100 100 1.0 0.5 255 0 0 100 100
+Rectangle r1 350 350 5.0 0.5 255 255 255 100 100
+Rectangle r2 600 100 1.0 0.5 255 0 0 100 100
