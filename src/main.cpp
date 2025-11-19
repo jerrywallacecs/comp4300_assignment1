@@ -201,6 +201,19 @@ int main(int argc, char* argv[])
 				}
 			}
 			*/
+
+			// since the keypressed is an int under the hood, we can use a switch statement
+
+			if (const auto* keyPressed = event->getIf<sf::Event::KeyPressed>())
+			{
+				// print the key that was pressed to the console
+				std::cout << "Key pressed with code " << int(keyPressed->scancode) << '\n';
+
+				if (keyPressed->scancode == sf::Keyboard::Scancode::Escape)
+				{
+					window.close();
+				}
+			}
 		}
 
 		// update imgui for this frame with the time that the last frame took
@@ -260,6 +273,8 @@ int main(int argc, char* argv[])
 		{
 			text.setString(displayString);
 		}
+
+		ImGui::End();
 
 		// set the circle properties, because they may have been updated with the ui
 		for (int i = 0; i < shapes.size(); ++i)
