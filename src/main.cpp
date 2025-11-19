@@ -329,17 +329,29 @@ int main(int argc, char* argv[])
 		// iterate through the vector and draw the shapes
 		for (int i = 0; i < shapes.size(); ++i)
 		{
+			sf::Text label(myFont, shapes[i].name, fontSize);
 			if (shapes[i].hasRectangle)
 			{
 				if (shapes[i].drawShape)
+				{
 					window.draw(shapes[i].rectangle);
+					label.setPosition(shapes[i].rectangle.getPosition());
+					label.setFillColor(fontColor);
+					window.draw(label);
+				}
 			}
 
 			if (shapes[i].hasCircle)
 			{
 				if (shapes[i].drawShape)
+				{
 					window.draw(shapes[i].circle);
+					label.setPosition(shapes[i].circle.getPosition());
+					label.setFillColor(fontColor);
+					window.draw(label);
+				}
 			}
+
 		}
 
 		ImGui::SFML::Render(window); // draw the ui last so it's on top
