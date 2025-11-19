@@ -27,13 +27,12 @@ int main(int argc, char* argv[])
 	{
 		std::string name;
 
-		float initialPosX{};
-		float initialPosY{};
+		float initialPosition[2] = {};
 
-		float speedX{};
-		float speedY{};
+		float velocity[2] = {};
 
-		unsigned int rgb[3] = { 255, 255, 255 };
+		float sfmlRGB[3] = { 255, 255, 255 };
+		float guiRGB[3] = {};
 		sf::Color rgbColor;
 
 		float widthHeight[2] = { 0, 0 };
@@ -98,15 +97,19 @@ int main(int argc, char* argv[])
 		{
 			shapeInfo info;
 			
-			fin >> info.name >> info.initialPosX >> info.initialPosY >> info.speedX >> info.speedY >> info.rgb[0] >> info.rgb[1] >> info.rgb[2] >> info.widthHeight[0] >> info.widthHeight[1];
+			fin >> info.name >> info.initialPosition[0] >> info.initialPosition[1] >> info.velocity[0] >> info.velocity[1] >> info.sfmlRGB[0] >> info.sfmlRGB[1] >> info.sfmlRGB[2] >> info.widthHeight[0] >> info.widthHeight[1];
 
 			sf::RectangleShape rectangle({ info.widthHeight[0], info.widthHeight[1] });
 			info.rectangle = rectangle;
 			info.hasRectangle = true;
 
-			info.rgbColor = sf::Color(static_cast<uint8_t>(info.rgb[0]), static_cast<uint8_t>(info.rgb[1]), static_cast<uint8_t>(info.rgb[2]));
+			info.rgbColor = sf::Color(static_cast<uint8_t>(info.sfmlRGB[0]), static_cast<uint8_t>(info.sfmlRGB[1]), static_cast<uint8_t>(info.sfmlRGB[2]));
+			
+			info.guiRGB[0] = info.sfmlRGB[0] / 255;
+			info.guiRGB[1] = info.sfmlRGB[1] / 255;
+			info.guiRGB[2] = info.sfmlRGB[2] / 255;
 
-			info.init(info.initialPosX, info.initialPosY, info.rgbColor);
+			info.init(info.initialPosition[0], info.initialPosition[1], info.rgbColor);
 
 			shapes.push_back(info);
 		}
@@ -115,16 +118,20 @@ int main(int argc, char* argv[])
 		{
 			shapeInfo info;
 
-			fin >> info.name >> info.initialPosX >> info.initialPosY >> info.speedX >> info.speedY >> info.rgb[0] >> info.rgb[1] >> info.rgb[2] >> info.radius;
+			fin >> info.name >> info.initialPosition[0] >> info.initialPosition[1] >> info.velocity[0] >> info.velocity[1] >> info.sfmlRGB[0] >> info.sfmlRGB[1] >> info.sfmlRGB[2] >> info.radius;
 
 			sf::CircleShape circle(info.radius, info.segments);
 			info.circle = circle;
 			info.hasCircle = true;
 
 
-			info.rgbColor = sf::Color(static_cast<uint8_t>(info.rgb[0]), static_cast<uint8_t>(info.rgb[1]), static_cast<uint8_t>(info.rgb[2]));
+			info.rgbColor = sf::Color(static_cast<uint8_t>(info.sfmlRGB[0]), static_cast<uint8_t>(info.sfmlRGB[1]), static_cast<uint8_t>(info.sfmlRGB[2]));
 
-			info.init(info.initialPosX, info.initialPosY, info.rgbColor);
+			info.guiRGB[0] = info.sfmlRGB[0] / 255;
+			info.guiRGB[1] = info.sfmlRGB[1] / 255;
+			info.guiRGB[2] = info.sfmlRGB[2] / 255;
+
+			info.init(info.initialPosition[0], info.initialPosition[1], info.rgbColor);
 
 			shapes.push_back(info);
 		}
@@ -245,8 +252,14 @@ int main(int argc, char* argv[])
 				ImGui::PushID(i); // unique ID for checkbox
 				ImGui::Checkbox("draw circle", &shapes[i].drawShape);
 				ImGui::SliderInt("sides", &shapes[i].segments, 3, 64);
-				ImGui::SliderFloat("circle x speed", &shapes[i].speedX, -15.0f, 15.0f);
-				ImGui::SliderFloat("circle y speed", &shapes[i].speedY, -15.0f, 15.0f);
+				ImGui::SliderFloat2("circle velocity", shapes[i].velocity, -5.0f, 5.0f);
+
+				ImGui::ColorEdit3("circle color", shapes[i].guiRGB);
+
+				if (ImGui::Button("reset circle"))
+				{
+					shapes[i].circle.setPosition({ shapes[i].initialPosition[0], shapes[i].initialPosition[1] });
+				}
 				ImGui::PopID();
 			}
 				
@@ -285,12 +298,15 @@ int main(int argc, char* argv[])
 
 		for (int i = 0; i < shapes.size(); ++i)
 		{
-			shapes[i].animate(shapes[i].speedX, shapes[i].speedY);
+			shapes[i].animate(shapes[i].velocity[0], shapes[i].velocity[1]);
 			
 			if (shapes[i].hasCircle)
 			{
 				shapes[i].circle.setPointCount(shapes[i].segments);
+				shapes[i].circle.setFillColor(sf::Color(uint8_t(shapes[i].guiRGB[0] * 255), uint8_t(shapes[i].guiRGB[1] * 255), uint8_t(shapes[i].guiRGB[2] * 255)));
 			}
+
+			
 		}
 
 
@@ -314,19 +330,19 @@ int main(int argc, char* argv[])
 			if (shapes[i].hasRectangle)
 			{
 				if (shapes[i].rectangle.getPosition().x < 0 || shapes[i].rectangle.getPosition().x + shapes[i].widthHeight[0] > windowWidth)
-					shapes[i].speedX *= -1;
+					shapes[i].velocity[0] *= -1;
 
 				if (shapes[i].rectangle.getPosition().y < 0 || shapes[i].rectangle.getPosition().y + shapes[i].widthHeight[1] > windowHeight)
-					shapes[i].speedY *= -1;
+					shapes[i].velocity[1] *= -1;
 			}
 
 			if (shapes[i].hasCircle)
 			{
 				if (shapes[i].circle.getPosition().x < 0 || shapes[i].circle.getPosition().x + (2 * shapes[i].radius) > windowWidth)
-					shapes[i].speedX *= -1;
+					shapes[i].velocity[0] *= -1;
 
 				if (shapes[i].circle.getPosition().y < 0 || shapes[i].circle.getPosition().y + (2 * shapes[i].radius) > windowHeight)
-					shapes[i].speedY *= -1;
+					shapes[i].velocity[1] *= -1;
 			}
 		}
 
