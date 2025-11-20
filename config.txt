@@ -1,5 +1,5 @@
 Window 1280 720
-Font fonts/airstrike.ttf 50 50 0 50
+Font fonts/airstrike.ttf 25 0 0 0
 Rectangle r1 350 350 5.0 0.5 255 255 255 100 100
 Rectangle r2 600 100 1.0 0.5 255 0 0 100 100
 Circle c1 100 100 4.0 3 255 0 0 100

@@ -173,6 +173,9 @@ int main(int argc, char* argv[])
 	// set up a character array to set the text
 	char displayString[255] = "Sample Text";
 
+	static int currentItem = 0; // index of currently selected item
+	static const char* currentItemLabel = shapes[currentItem].name.c_str(); // we need the std::string to be a null-terminated c-style string to use the combo box
+
 	// main loop - continues for each frame while window is open
 	while (window.isOpen())
 	{
@@ -220,8 +223,7 @@ int main(int argc, char* argv[])
 		ImGui::SFML::Update(window, deltaClock.restart());
 
 		// draw the UI
-		ImGui::Begin("window title");
-		ImGui::Text("window text");
+		ImGui::Begin("Shape Properties");
 
 		// with intermediate mode (imgui), we just pass in the name and a pointer to the variable it operates on
 		//ImGui::Text("Circle Settings");
@@ -233,6 +235,7 @@ int main(int argc, char* argv[])
 		//ImGui::SliderFloat("circle x speed", &circleSpeedX, -15.0f, 15.0f);
 		//ImGui::SliderFloat("circle y speed", &circleSpeedY, -15.0f, 15.0f);
 
+		/*
 		for (int i = 0; i < shapes.size(); ++i)
 		{
 			if (shapes[i].hasRectangle)
@@ -268,10 +271,34 @@ int main(int argc, char* argv[])
 				
 		}
 
+		*/
+
+		/*
 		ImGui::InputText("text", displayString, 255);
 		if (ImGui::Button("set text"))
 		{
 			text.setString(displayString);
+		}
+		*/
+
+		// preview shows the currently selected item
+		if (ImGui::BeginCombo("Shape Name", currentItemLabel))
+		{
+			for (int i = 0; i < shapes.size(); i++)
+			{
+				ImGui::PushID(i);
+				const bool isSelected = (currentItem == i);
+
+				if (ImGui::Selectable(shapes[i].name.c_str(), isSelected))
+				{
+					currentItem = i;
+					currentItemLabel = shapes[i].name.c_str(); // update preview
+				}
+
+				ImGui::PopID();
+			}
+
+			ImGui::EndCombo();
 		}
 
 		ImGui::End();
@@ -335,7 +362,15 @@ int main(int argc, char* argv[])
 				if (shapes[i].drawShape)
 				{
 					window.draw(shapes[i].rectangle);
-					label.setPosition(shapes[i].rectangle.getPosition());
+
+					sf::FloatRect labelBounds = label.getLocalBounds();
+					sf::FloatRect shapeBounds = shapes[i].rectangle.getGlobalBounds();
+
+					sf::Vector2f shapeCenter = shapeBounds.position + (shapeBounds.size * 0.5f);
+					sf::Vector2f labelCenter = labelBounds.position + (labelBounds.size * 0.5f);
+					label.setOrigin(labelCenter);
+
+					label.setPosition(shapeCenter);
 					label.setFillColor(fontColor);
 					window.draw(label);
 				}
@@ -346,7 +381,15 @@ int main(int argc, char* argv[])
 				if (shapes[i].drawShape)
 				{
 					window.draw(shapes[i].circle);
-					label.setPosition(shapes[i].circle.getPosition());
+
+					sf::FloatRect labelBounds = label.getLocalBounds();
+					sf::FloatRect shapeBounds = shapes[i].circle.getGlobalBounds();
+
+					sf::Vector2f shapeCenter = shapeBounds.position + (shapeBounds.size * 0.5f);
+					sf::Vector2f labelCenter = labelBounds.position + (labelBounds.size * 0.5f);
+
+					label.setOrigin(labelCenter);
+					label.setPosition(shapeCenter);
 					label.setFillColor(fontColor);
 					window.draw(label);
 				}
