@@ -7,6 +7,63 @@
 #include <imgui-SFML.h>
 #include <imgui.h>
 
+enum class ShapeType
+{
+	Rectangle,
+	Circle
+};
+
+struct shapeInfo
+{
+	std::string name;
+
+	float initialPosition[2] = {};
+
+	float velocity[2] = {};
+
+	float sfmlRGB[3] = { 255, 255, 255 };
+	float guiRGB[3] = {};
+	sf::Color rgbColor;
+
+	float widthHeight[2] = { 0, 0 };
+	float scale = 1;
+	float radius = 0;
+	int segments = 32;
+
+	sf::RectangleShape rectangle;
+	sf::CircleShape circle;
+
+	ShapeType type;
+
+	bool hasRectangle = false;
+	bool hasCircle = false;
+
+	bool drawShape = true;
+
+	void init(float posx, float posy, sf::Color rgb)
+	{
+		if (hasRectangle)
+		{
+			rectangle.setPosition({ posx, posy });
+			rectangle.setFillColor(rgb);
+		}
+
+		if (hasCircle)
+		{
+			circle.setPosition({ posx, posy });
+			circle.setFillColor(rgb);
+		}
+	}
+
+	void animate(float speedx, float speedy)
+	{
+		if (hasRectangle)
+			rectangle.setPosition({ rectangle.getPosition().x + speedx, rectangle.getPosition().y + speedy });
+		if (hasCircle)
+			circle.setPosition({ circle.getPosition().x + speedx, circle.getPosition().y + speedy });
+	}
+};
+
 int main(int argc, char* argv[])
 {
 	// FILE HANDLING
@@ -22,55 +79,6 @@ int main(int argc, char* argv[])
 	std::string fontFile;
 	int fontSize{ 0 };
 	int fontRGB[3] = { 0, 0, 0 };
-
-	struct shapeInfo
-	{
-		std::string name;
-
-		float initialPosition[2] = {};
-
-		float velocity[2] = {};
-
-		float sfmlRGB[3] = { 255, 255, 255 };
-		float guiRGB[3] = {};
-		sf::Color rgbColor;
-
-		float widthHeight[2] = { 0, 0 };
-		float radius = 0;
-		int segments = 32;
-
-		sf::RectangleShape rectangle;
-		sf::CircleShape circle;
-
-		bool hasRectangle = false;
-		bool hasCircle = false;
-
-		bool drawShape = true;
-
-		void init(float posx, float posy, sf::Color rgb)
-		{
-			if (hasRectangle)
-			{
-				rectangle.setPosition({ posx, posy });
-				rectangle.setFillColor(rgb);
-			}
-
-			if (hasCircle)
-			{
-				circle.setPosition({ posx, posy });
-				circle.setFillColor(rgb);
-			}
-		}
-
-		void animate(float speedx, float speedy)
-		{
-			if (hasRectangle)
-				rectangle.setPosition({ rectangle.getPosition().x + speedx, rectangle.getPosition().y + speedy });
-			if (hasCircle)
-				circle.setPosition({ circle.getPosition().x + speedx, circle.getPosition().y + speedy });
-		}
-
-	};
 
 	// container for all shapes
 	std::vector<shapeInfo> shapes = {};
@@ -102,6 +110,7 @@ int main(int argc, char* argv[])
 			sf::RectangleShape rectangle({ info.widthHeight[0], info.widthHeight[1] });
 			info.rectangle = rectangle;
 			info.hasRectangle = true;
+			info.type = ShapeType::Rectangle;
 
 			info.rgbColor = sf::Color(static_cast<uint8_t>(info.sfmlRGB[0]), static_cast<uint8_t>(info.sfmlRGB[1]), static_cast<uint8_t>(info.sfmlRGB[2]));
 			
@@ -123,6 +132,7 @@ int main(int argc, char* argv[])
 			sf::CircleShape circle(info.radius, info.segments);
 			info.circle = circle;
 			info.hasCircle = true;
+			info.type = ShapeType::Circle;
 
 
 			info.rgbColor = sf::Color(static_cast<uint8_t>(info.sfmlRGB[0]), static_cast<uint8_t>(info.sfmlRGB[1]), static_cast<uint8_t>(info.sfmlRGB[2]));
@@ -268,7 +278,17 @@ int main(int argc, char* argv[])
 				}
 				ImGui::PopID();
 			}
-				
+		ImGui::PushID(i); // unique ID for checkbox
+		ImGui::Checkbox("draw rectangle", &shapes[i].drawShape);
+		ImGui::SliderFloat2("rectangle velocity", shapes[i].velocity, -5.0f, 5.0f);
+
+		ImGui::ColorEdit3("rectangle color", shapes[i].guiRGB);
+
+		if (ImGui::Button("reset rectangle"))
+		{
+			shapes[i].rectangle.setPosition({ shapes[i].initialPosition[0], shapes[i].initialPosition[1] });
+		}
+		ImGui::PopID();
 		}
 
 		*/
@@ -282,7 +302,7 @@ int main(int argc, char* argv[])
 		*/
 
 		// preview shows the currently selected item
-		if (ImGui::BeginCombo("Shape Name", currentItemLabel))
+		if (ImGui::BeginCombo("Shape", currentItemLabel))
 		{
 			for (int i = 0; i < shapes.size(); i++)
 			{
@@ -301,7 +321,46 @@ int main(int argc, char* argv[])
 			ImGui::EndCombo();
 		}
 
+		switch (shapes[currentItem].type)
+		{
+		case ShapeType::Rectangle:
+			ImGui::Checkbox("Draw Shape", &shapes[currentItem].drawShape);
+			ImGui::SliderFloat("Scale", &shapes[currentItem].scale, 0.1f, 5.0f);
+			ImGui::SliderFloat2("Velocity", shapes[currentItem].velocity, -5.0f, 5.0f);
+			ImGui::ColorEdit3("Color", shapes[currentItem].guiRGB);
+			break;
+		case ShapeType::Circle:
+			ImGui::Checkbox("Draw Shape", &shapes[currentItem].drawShape);
+			ImGui::SliderFloat("Radius", &shapes[currentItem].radius, 0.1f, 500.0f);
+			ImGui::SliderInt("Sides", &shapes[currentItem].segments, 3, 64);
+			ImGui::SliderFloat2("Velocity", shapes[currentItem].velocity, -5.0f, 5.0f);
+			ImGui::ColorEdit3("Color", shapes[currentItem].guiRGB);
+			break;
+		}
+
 		ImGui::End();
+		
+		// handle velocity & collision
+		for (int i = 0; i < shapes.size(); ++i)
+		{
+			if (shapes[i].hasRectangle)
+			{
+				if (shapes[i].rectangle.getPosition().x < 0 || shapes[i].rectangle.getPosition().x + (shapes[i].widthHeight[0] * shapes[i].scale) > windowWidth)
+					shapes[i].velocity[0] *= -1;
+
+				if (shapes[i].rectangle.getPosition().y < 0 || shapes[i].rectangle.getPosition().y + (shapes[i].widthHeight[1] * shapes[i].scale) > windowHeight)
+					shapes[i].velocity[1] *= -1;
+			}
+
+			if (shapes[i].hasCircle)
+			{
+				if (shapes[i].circle.getPosition().x < 0 || shapes[i].circle.getPosition().x + (2 * shapes[i].radius) > windowWidth)
+					shapes[i].velocity[0] *= -1;
+
+				if (shapes[i].circle.getPosition().y < 0 || shapes[i].circle.getPosition().y + (2 * shapes[i].radius) > windowHeight)
+					shapes[i].velocity[1] *= -1;
+			}
+		}
 
 		// set the circle properties, because they may have been updated with the ui
 		for (int i = 0; i < shapes.size(); ++i)
@@ -315,35 +374,17 @@ int main(int argc, char* argv[])
 			{
 				shapes[i].circle.setPointCount(shapes[i].segments);
 				shapes[i].circle.setFillColor(sf::Color(uint8_t(shapes[i].guiRGB[0] * 255), uint8_t(shapes[i].guiRGB[1] * 255), uint8_t(shapes[i].guiRGB[2] * 255)));
+				shapes[i].circle.setRadius(shapes[i].radius);
 			}
 
 			if (shapes[i].hasRectangle)
 			{
 				shapes[i].rectangle.setFillColor(sf::Color(uint8_t(shapes[i].guiRGB[0] * 255), uint8_t(shapes[i].guiRGB[1] * 255), uint8_t(shapes[i].guiRGB[2] * 255)));
+				shapes[i].rectangle.setScale({ shapes[i].scale, shapes[i].scale });
 			}
 		}
 
-		// handle velocity
-		for (int i = 0; i < shapes.size(); ++i)
-		{
-			if (shapes[i].hasRectangle)
-			{
-				if (shapes[i].rectangle.getPosition().x < 0 || shapes[i].rectangle.getPosition().x + shapes[i].widthHeight[0] > windowWidth)
-					shapes[i].velocity[0] *= -1;
-
-				if (shapes[i].rectangle.getPosition().y < 0 || shapes[i].rectangle.getPosition().y + shapes[i].widthHeight[1] > windowHeight)
-					shapes[i].velocity[1] *= -1;
-			}
-
-			if (shapes[i].hasCircle)
-			{
-				if (shapes[i].circle.getPosition().x < 0 || shapes[i].circle.getPosition().x + (2 * shapes[i].radius) > windowWidth)
-					shapes[i].velocity[0] *= -1;
-
-				if (shapes[i].circle.getPosition().y < 0 || shapes[i].circle.getPosition().y + (2 * shapes[i].radius) > windowHeight)
-					shapes[i].velocity[1] *= -1;
-			}
-		}
+		
 
 		// RENDERING
 		window.clear();
