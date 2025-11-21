@@ -1,13 +1,19 @@
 Window 1280 720
 Font fonts/airstrike.ttf 25 0 0 0
-Rectangle RedRect 400 300 120 -80 255 0 0 180 120
-Rectangle BlueBox 800 500 -150 90 0 100 255 240 240
-Rectangle GreenBlade 100 400 200 0 0 255 0 80 300
-Rectangle PurpleSquare 600 200 0 180 180 50 255 200 200
-Rectangle YellowBar 200 100 300 -50 255 255 0 400 60
 
-Circle Sun 700 200 -80 -60 255 220 0 120
-Circle BouncyBall 300 500 200 150 255 100 180 80
-Circle Ghost 500 300 -120 100 200 200 255 60
-Circle NeonOrb 900 400 -180 -120 0 255 255 100
-Circle TinyDot 100 100 350 -280 100 255 100 25
+Rectangle Player 640 360 0 0 0 255 0 120 80
+Rectangle Enemy1 200 150 3 -2 255 0 0 100 100
+Rectangle Enemy2 1000 500 -4 1.5 200 0 255 80 140
+Rectangle WallTop 640 20 0 0 100 100 100 1280 40
+Rectangle WallBottom 640 700 0 0 100 100 100 1280 40
+Rectangle PowerUp 800 200 0 -3 255 255 0 60 60
+Rectangle Obstacle1 400 550 2 0 150 150 150 200 50
+Rectangle Obstacle2 900 100 -1.8 2.5 255 100 100 150 90
+
+Circle Ball 640 360 4 -3 255 255 255 30
+Circle Bouncer1 300 400 -2.5 4 0 255 255 50
+Circle Bouncer2 980 250 3.5 -2 255 0 255 45
+Circle Collectible1 150 600 0 0 0 255 0 25
+Circle Collectible2 1120 100 0 0 255 215 0 35
+Circle Hazard 640 600 1.2 -4.8 255 0 0 40
+Circle Booster 500 200 -3 0 0 200 255 55

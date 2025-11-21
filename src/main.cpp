@@ -16,6 +16,7 @@ enum class ShapeType
 struct shapeInfo
 {
 	std::string name;
+	char nameBuffer[256] = {};
 
 	float initialPosition[2] = {};
 
@@ -63,6 +64,12 @@ struct shapeInfo
 			circle.setPosition({ circle.getPosition().x + speedx, circle.getPosition().y + speedy });
 	}
 };
+
+void updateNameBuffer(shapeInfo& s)
+{
+	strncpy(s.nameBuffer, s.name.c_str(), sizeof(s.nameBuffer) - 1);
+	s.nameBuffer[sizeof(s.nameBuffer) - 1] = '/0'; // ensures null termination
+}
 
 int main(int argc, char* argv[])
 {
@@ -149,7 +156,7 @@ int main(int argc, char* argv[])
 
 	sf::Color fontColor(fontRGB[0], fontRGB[1], fontRGB[2], 255);
 
-	auto window = sf::RenderWindow(sf::VideoMode({ windowWidth, windowHeight }), "Assignment 1 | SFML + ImGui");
+	auto window = sf::RenderWindow(sf::VideoMode({ windowWidth, windowHeight }), "Dynamic Shape Sandbox");
 	window.setFramerateLimit(60);
 
 	// initialize imgui and create a clock used for its internal timing
@@ -171,6 +178,7 @@ int main(int argc, char* argv[])
 
 	// set up the text object that will be drawn in the bottom of the screen
 	sf::Text text(myFont, "hello world", fontSize);
+	char displayString[255] = "tester";
 
 	// set up a character array to set the text
 	//char displayString[255] = { shapes[0].name.c_str() };
@@ -310,6 +318,13 @@ int main(int argc, char* argv[])
 			ImGui::SliderFloat("Scale", &shapes[currentItem].scale, 0.1f, 5.0f);
 			ImGui::SliderFloat2("Velocity", shapes[currentItem].velocity, -5.0f, 5.0f);
 			ImGui::ColorEdit3("Color", shapes[currentItem].guiRGB);
+			// updates the name buffer with the std::string
+			updateNameBuffer(shapes[currentItem]);
+			// instead of using a set name button, we just type in the name and it updates automatically
+			if (ImGui::InputText("Name", shapes[currentItem].nameBuffer, sizeof(shapes[currentItem].nameBuffer)))
+			{
+				shapes[currentItem].name = shapes[currentItem].nameBuffer;
+			}
 			break;
 		case ShapeType::Circle:
 			ImGui::Checkbox("Draw Shape", &shapes[currentItem].drawShape);
