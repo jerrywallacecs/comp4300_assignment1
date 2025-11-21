@@ -1,6 +1,6 @@
 # Dynamic Shape Animation with SFML and ImGui
 
-<img width="1274" height="716" alt="image" src="https://github.com/user-attachments/assets/e961bba8-ef12-426b-8054-1a126186c86f" />
+<img width="1277" height="721" alt="Screenshot 2025-11-21 011027" src="https://github.com/user-attachments/assets/6447111f-5c31-413b-85d2-ee6049761346" />
 
 ## Overview
 This C++ application demonstates real-time 2D animation and interactive editing using
