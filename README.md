@@ -45,13 +45,3 @@ Font filename.ttf size R G B # Font file (no spaces), size, and default text col
 Rectangle Name xPos yPos velocityX velocityY R G B Width Height
 Circle Name xPos yPos velocityX velocityY R G B Radius
 ```
-
-## Acknowledgements
-This program is inspired by an assignment given in COMP 4300 at Memorial University Newfoundland and 
-provides practical experience with:
-- File I/O and parsing in modern C++
-- Polymorphism and container management
-- Real-time animation and collision response
-- Integrating immediate-mode GUI toolkits
-
-Thanks.
